@@ -33,6 +33,10 @@ import {Options} from './cli';
 import {PackageJson} from '@npm/types';
 import chalk = require('chalk');
 
+interface NodeError extends Error {
+  code: string;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require('../../package.json');
 
@@ -191,7 +195,8 @@ async function generateConfigFile(
   let existing;
   try {
     existing = await read(filename, 'utf8');
-  } catch (err) {
+  } catch (_err) {
+    const err = _err as NodeError;
     if (err.code === 'ENOENT') {
       /* not found, create it. */
     } else {
@@ -259,7 +264,8 @@ export async function installDefaultTemplate(
 
   try {
     fs.mkdirSync(targetDirName);
-  } catch (error) {
+  } catch (_error) {
+    const error = _error as NodeError;
     if (error.code !== 'EEXIST') {
       throw error;
     }
@@ -286,7 +292,8 @@ export async function init(options: Options): Promise<boolean> {
   let packageJson;
   try {
     packageJson = await readJson('./package.json');
-  } catch (err) {
+  } catch (_err) {
+    const err = _err as NodeError;
     if (err.code !== 'ENOENT') {
       throw new Error(`Unable to open package.json file: ${err.message}`);
     }
